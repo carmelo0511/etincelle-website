@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Etincelle - From AI confusion to clarity">
+
+  <title>Etincelle - AI Agency</title>
+
+  <!-- Fonts - Using Fraunces for a more elegant serif like Claura -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container nav__container">
+      <a href="/" class="nav__logo">Etincelle</a>
+
+      <ul class="nav__links">
+        <li><a href="#about" class="nav__link">About</a></li>
+        <li><a href="#services" class="nav__link">Case Studies</a></li>
+        <li><a href="#team" class="nav__link">Team</a></li>
+      </ul>
+
+      <a href="#contact" class="btn btn-primary btn-sm">Get in touch</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__badge fade-up" data-delay="100">AI for life sciences</div>
+      <div class="hero__content fade-up" data-delay="200">
+        <h1 class="hero__title">
+          From AI confusion<br>to <em>clarity.</em>
+        </h1>
+        <p class="hero__subtitle">
+          We help life science and health companies identify, build,<br>
+          and productionize the use cases that make AI happen.
+        </p>
+        <div class="hero__ctas">
+          <a href="#contact" class="btn btn-primary">Book a free call</a>
+          <a href="#services" class="btn btn-secondary">Learn more →</a>
+        </div>
+      </div>
+
+      <!-- Hero Visual - Dot Matrix Pattern with Gradient Overlay -->
+      <div class="hero__visual-container fade-up" data-delay="400">
+        <div class="hero__visual">
+          <div class="hero__dot-matrix">
+            <div class="hero__gradient-overlay"></div>
+            <div class="hero__organic-shape"></div>
+            <div class="hero__leaf-accent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Partner Logos -->
+      <div class="hero__partners fade-up" data-delay="600">
+        <span class="hero__partners-label">Backed by leaders from</span>
+        <div class="hero__partners-logos">
+          <span class="partner-logo">Amsterdam</span>
+          <span class="partner-logo">Prime Objects</span>
+          <span class="partner-logo">CALIFORNIA</span>
+          <span class="partner-logo">Kenko</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats section" id="about">
+    <div class="container">
+      <div class="stats__header fade-up">
+        <span class="section-badge">Who we are</span>
+        <h2 class="stats__title">The AI agency built for <em>you.</em></h2>
+        <p class="stats__description">
+          We're a team of AI engineers, product builders, and life science experts
+          who've spent years solving complex problems at leading companies.
+        </p>
+      </div>
+
+      <div class="stats__cards stagger">
+        <div class="stat-card stat-card--gradient scale-in">
+          <div class="stat-card__number" data-count="1500">0</div>
+          <div class="stat-card__suffix">+</div>
+          <div class="stat-card__label">Hours saved</div>
+          <div class="stat-card__sublabel">Monthly across clients</div>
+        </div>
+        <div class="stat-card stat-card--gradient scale-in">
+          <div class="stat-card__number" data-count="35">0</div>
+          <div class="stat-card__suffix">%</div>
+          <div class="stat-card__label">Cost reduction</div>
+          <div class="stat-card__sublabel">Average per project</div>
+        </div>
+        <div class="stat-card stat-card--gradient scale-in">
+          <div class="stat-card__number" data-count="45">0</div>
+          <div class="stat-card__label">days</div>
+          <div class="stat-card__sublabel">To first deployment</div>
+        </div>
+      </div>
+
+      <div class="stats__cta fade-up">
+        <span>Want to be part of the team?</span>
+        <a href="#careers" class="link-arrow link-hover">Careers page →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="services section" id="services">
+    <div class="container">
+      <div class="services__header text-center fade-up">
+        <span class="section-badge">Services</span>
+        <h2>We handle <em>everything</em> so you don't have to.</h2>
+        <p class="services__subtitle">
+          From initial discovery to full deployment, we guide you through every step
+          of your AI journey with hands-on expertise.
+        </p>
+      </div>
+
+      <div class="services__tabs fade-up" data-delay="200">
+        <div class="services__tab-list">
+          <button class="services__tab active" data-tab="discover">
+            Discover <sup>01</sup>
+          </button>
+          <button class="services__tab" data-tab="build">
+            Build <sup>02</sup>
+          </button>
+          <button class="services__tab" data-tab="deploy">
+            Deploy <sup>03</sup>
+          </button>
+          <button class="services__tab" data-tab="optimize">
+            Optimize <sup>04</sup>
+          </button>
+        </div>
+
+        <div class="services__tab-content">
+          <div class="services__tab-panel active" id="discover">
+            <div class="services__tab-image">
+              <div class="tab-image tab-image--discover"></div>
+            </div>
+            <div class="services__tab-info">
+              <h3>Discover</h3>
+              <p>
+                We identify high-impact AI opportunities specific to your business,
+                conducting thorough assessments to find where automation can deliver
+                real, measurable value.
+              </p>
+              <a href="#" class="link-arrow">Book a free call →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial Section -->
+  <section class="testimonial section">
+    <div class="container">
+      <div class="testimonial__card scale-in">
+        <div class="testimonial__quote">"</div>
+        <blockquote class="testimonial__text">
+          They didn't overwhelm us with options. They just
+          built exactly what we needed. We're saving 15 hours a
+          week and saw ROI in under two months.
+        </blockquote>
+        <div class="testimonial__author">
+          <div class="testimonial__author-info">
+            <div class="testimonial__author-name">Sarah Chen</div>
+            <div class="testimonial__author-role">Head of Operations, BioPharm Inc.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process Section -->
+  <section class="process section">
+    <div class="container">
+      <div class="process__grid">
+        <div class="process__content slide-left">
+          <span class="section-badge">How we work</span>
+          <h2>Getting you results<br><em>without</em> the complexity.</h2>
+          <div class="process__ctas">
+            <a href="#contact" class="btn btn-primary">Book a free call</a>
+            <a href="#" class="btn btn-secondary">View pricing →</a>
+          </div>
+        </div>
+        <div class="process__steps slide-right stagger">
+          <div class="process__step fade-up">
+            <div class="process__step-header">
+              <span class="process__step-title">Discovery & Assessment</span>
+              <span class="process__step-duration">Week 1</span>
+            </div>
+          </div>
+          <div class="process__step fade-up">
+            <div class="process__step-header">
+              <span class="process__step-title">Build & Deploy</span>
+              <span class="process__step-duration">Weeks 2-4</span>
+            </div>
+          </div>
+          <div class="process__step fade-up">
+            <div class="process__step-header">
+              <span class="process__step-title">Train & Support</span>
+              <span class="process__step-duration">Ongoing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="comparison section">
+    <div class="container">
+      <div class="comparison__header text-center fade-up">
+        <span class="section-badge">Why Etincelle</span>
+        <h2>We're not your <em>typical</em> AI agency.</h2>
+        <p>
+          We focus on life sciences because that's what we know best. Our team
+          combines deep industry knowledge with technical expertise.
+        </p>
+      </div>
+
+      <div class="comparison__cards stagger">
+        <div class="comparison__card comparison__card--other scale-in hover-lift">
+          <div class="comparison__card-header">
+            <span class="comparison__card-label">Other agencies</span>
+          </div>
+          <div class="comparison__card-image hover-zoom">
+            <div class="comparison-visual comparison-visual--blur"></div>
+          </div>
+          <p class="comparison__card-text">
+            Other agencies overwhelm you with buzzwords, take
+            months to deliver, and leave you with solutions that
+            don't fit your specific needs.
+          </p>
+        </div>
+
+        <div class="comparison__card comparison__card--us scale-in hover-lift">
+          <div class="comparison__card-header">
+            <span class="comparison__card-label">Etincelle</span>
+          </div>
+          <div class="comparison__card-image hover-zoom">
+            <div class="comparison-visual comparison-visual--clear"></div>
+          </div>
+          <p class="comparison__card-text">
+            We speak your language, deliver in weeks not months,
+            and build solutions tailored to life science workflows
+            that actually get used.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Automate Section -->
+  <section class="automate section">
+    <div class="container">
+      <div class="automate__grid">
+        <div class="automate__content slide-left">
+          <span class="section-badge">Solutions</span>
+          <h2>We help automate<br>what matters <em>most.</em></h2>
+          <p>
+            Whether it's streamlining clinical trial workflows, automating
+            regulatory documentation, or building custom AI tools—we focus
+            on the work that moves your business forward.
+          </p>
+          <div class="automate__stats">
+            <div class="automate__stat">
+              <div class="automate__stat-number">50+</div>
+              <div class="automate__stat-label">Hours saved</div>
+              <div class="automate__stat-sublabel">Weekly per team</div>
+            </div>
+            <div class="automate__stat">
+              <div class="automate__stat-number">40%</div>
+              <div class="automate__stat-label">Reduction</div>
+              <div class="automate__stat-sublabel">In manual errors</div>
+            </div>
+          </div>
+        </div>
+        <div class="automate__visual slide-right">
+          <div class="automate__image">
+            <div class="automate__gradient-shape float-delayed"></div>
+            <div class="automate__app-preview">
+              <div class="app-preview__header">K-Hamilton</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section id="team" class="team section">
+    <div class="container">
+      <div class="team__header fade-up">
+        <h2>You're in <em>experienced</em> hands.</h2>
+      </div>
+
+      <div class="team__grid stagger">
+        <div class="team-card scale-in">
+          <div class="team-card__image team-card__image--1 hover-zoom"></div>
+          <div class="team-card__name">Alex Rivera</div>
+          <div class="team-card__role">CEO & Founder</div>
+        </div>
+        <div class="team-card scale-in">
+          <div class="team-card__image team-card__image--2 hover-zoom"></div>
+          <div class="team-card__name">Jordan Lee</div>
+          <div class="team-card__role">CTO</div>
+        </div>
+        <div class="team-card scale-in">
+          <div class="team-card__image team-card__image--3 hover-zoom"></div>
+          <div class="team-card__name">Sam Taylor</div>
+          <div class="team-card__role">Head of AI</div>
+        </div>
+        <div class="team-card scale-in">
+          <div class="team-card__image team-card__image--4 hover-zoom"></div>
+          <div class="team-card__name">Casey Morgan</div>
+          <div class="team-card__role">Lead Engineer</div>
+        </div>
+      </div>
+
+      <div class="team__cta fade-up">
+        <span>Want to be part of the team?</span>
+        <a href="#careers" class="link-arrow link-hover">Careers page →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq section">
+    <div class="container">
+      <div class="faq__header text-center fade-up">
+        <span class="section-badge">FAQ</span>
+        <h2>Your questions <em>answered.</em></h2>
+      </div>
+
+      <div class="faq__list fade-up" data-delay="200">
+        <div class="faq__item">
+          <button class="faq__question">
+            <span>Do I need technical knowledge to work with you?</span>
+            <span class="faq__icon">+</span>
+          </button>
+          <div class="faq__answer">
+            <div class="faq__answer-inner">
+              Not at all. We handle all the technical complexity so you can focus on
+              your business. We'll explain everything in plain language and keep you
+              informed at every step without overwhelming you with jargon.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq__item">
+          <button class="faq__question">
+            <span>How long does it take to see results?</span>
+            <span class="faq__icon">+</span>
+          </button>
+          <div class="faq__answer">
+            <div class="faq__answer-inner">
+              Most clients see their first deployment within 45 days. We focus on
+              quick wins that demonstrate value while building toward larger goals.
+              You'll start seeing ROI well before the full solution is complete.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq__item">
+          <button class="faq__question">
+            <span>What if the automation doesn't work for my business?</span>
+            <span class="faq__icon">+</span>
+          </button>
+          <div class="faq__answer">
+            <div class="faq__answer-inner">
+              We start with a thorough discovery phase to ensure AI is the right fit.
+              If we don't think we can deliver meaningful value, we'll tell you upfront.
+              Our reputation depends on delivering results, not selling projects.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq__item">
+          <button class="faq__question">
+            <span>How much does it cost?</span>
+            <span class="faq__icon">+</span>
+          </button>
+          <div class="faq__answer">
+            <div class="faq__answer-inner">
+              Pricing varies based on scope and complexity. We offer flexible engagement
+              models from one-time projects to ongoing partnerships. Book a free call
+              and we'll provide a transparent quote based on your specific needs.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq__item">
+          <button class="faq__question">
+            <span>What happens after implementation?</span>
+            <span class="faq__icon">+</span>
+          </button>
+          <div class="faq__answer">
+            <div class="faq__answer-inner">
+              We don't disappear after launch. We provide training for your team,
+              documentation, and ongoing support options. Many clients continue
+              working with us to optimize and expand their AI capabilities.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer CTA -->
+  <section class="footer-cta section" id="contact">
+    <div class="container">
+      <div class="footer-cta__card scale-in">
+        <div class="footer-cta__content">
+          <div class="footer-cta__rating">
+            <span class="stars">★★★★★</span>
+            <span class="rating-text">5 stars on Clutch</span>
+          </div>
+          <h2>Turn confusion into<br><em>clarity,</em> today.</h2>
+          <p>
+            Take the first step toward AI that actually works for your
+            business. Schedule a free 30-minute call with our team.
+          </p>
+          <div class="footer-cta__partners">
+            <span>Amsterdam</span>
+            <span>Prime</span>
+            <span>Kenko</span>
+          </div>
+        </div>
+        <div class="footer-cta__form">
+          <div class="contact-form">
+            <div class="form-group">
+              <label>Full name</label>
+              <input type="text" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+              <label>Work email</label>
+              <input type="email" placeholder="john@company.com">
+            </div>
+            <div class="form-group">
+              <label>Company</label>
+              <input type="text" placeholder="Acme Inc.">
+            </div>
+            <div class="form-group">
+              <label>How can we help?</label>
+              <textarea placeholder="Tell us about your project..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-gradient btn-full">Book a call</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__content">
+        <div class="footer__logo">Etincelle</div>
+        <p class="footer__tagline">Making life science teams work smarter, not harder.</p>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copyright">
+          &copy; 2024 Etincelle. All rights reserved.
+        </p>
+        <ul class="footer__links">
+          <li><a href="#" class="footer__link">Privacy</a></li>
+          <li><a href="#" class="footer__link">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+</body>
+</html>
