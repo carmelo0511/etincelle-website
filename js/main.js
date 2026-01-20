@@ -4,6 +4,43 @@
  */
 
 // ==========================================================================
+// Lenis Smooth Scroll - Framer-like buttery scrolling
+// ==========================================================================
+let lenis;
+
+function initLenis() {
+  lenis = new Lenis({
+    duration: 0.4,
+    easing: (t) => t,
+    orientation: 'vertical',
+    gestureOrientation: 'vertical',
+    smoothWheel: true,
+    wheelMultiplier: 1.1,
+    touchMultiplier: 1,
+    infinite: false,
+  });
+
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+
+  requestAnimationFrame(raf);
+
+  // Connect Lenis to anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const target = document.querySelector(targetId);
+      if (target) {
+        lenis.scrollTo(target, { offset: -80 });
+      }
+    });
+  });
+}
+
+// ==========================================================================
 // Scroll Progress Indicator
 // ==========================================================================
 function initScrollProgress() {
@@ -70,13 +107,12 @@ function initScrollAnimations() {
 }
 
 // ==========================================================================
-// Smooth Navigation with Active State
+// Navigation - Always visible, background on scroll
 // ==========================================================================
 function initNavigation() {
   const nav = document.querySelector('.nav');
   if (!nav) return;
 
-  let lastScroll = 0;
   let ticking = false;
 
   window.addEventListener('scroll', () => {
@@ -91,22 +127,11 @@ function initNavigation() {
           nav.classList.remove('nav--scrolled');
         }
 
-        // Hide/show nav on scroll direction
-        if (currentScroll > lastScroll && currentScroll > 200) {
-          nav.style.transform = 'translateY(-100%)';
-        } else {
-          nav.style.transform = 'translateY(0)';
-        }
-
-        lastScroll = currentScroll;
         ticking = false;
       });
       ticking = true;
     }
   }, { passive: true });
-
-  // Add transition for smooth hide/show
-  nav.style.transition = 'transform 0.3s ease, background 0.3s ease';
 }
 
 // ==========================================================================
@@ -235,52 +260,76 @@ function initMagneticButtons() {
 }
 
 // ==========================================================================
-// Services Tabs with Smooth Transitions
+// Services Tabs with Smooth Transitions (Claura-style)
 // ==========================================================================
 function initServicesTabs() {
+  const tabList = document.querySelector('.services__tab-list');
   const tabs = document.querySelectorAll('.services__tab');
   const panels = document.querySelectorAll('.services__tab-panel');
+  const indicator = document.querySelector('.services__tab-indicator');
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const tabId = tab.dataset.tab;
+  if (!tabList || !tabs.length || !indicator) return;
 
-      // Remove active from all tabs with animation
-      tabs.forEach(t => {
-        t.classList.remove('active');
+  // Position indicator on the active tab
+  function moveIndicator(tab) {
+    const tabRect = tab.getBoundingClientRect();
+    const listRect = tabList.getBoundingClientRect();
+    const offsetTop = tab.offsetTop;
+
+    indicator.style.transform = `translateY(${offsetTop}px)`;
+    indicator.style.height = `${tab.offsetHeight}px`;
+  }
+
+  // Initialize indicator position
+  const activeTab = document.querySelector('.services__tab.active');
+  if (activeTab) {
+    // Set initial position without animation
+    indicator.style.transition = 'none';
+    moveIndicator(activeTab);
+    // Re-enable animation after initial position
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        indicator.style.transition = '';
       });
+    });
+  }
 
-      // Add active to clicked tab
+  // Handle tab hover (activate on hover instead of click)
+  tabs.forEach(tab => {
+    tab.addEventListener('mouseenter', () => {
+      const tabId = tab.dataset.tab;
+      const currentPanel = document.querySelector('.services__tab-panel.active');
+      const newPanel = document.getElementById(tabId);
+
+      if (currentPanel === newPanel) return;
+
+      // Update active tab
+      tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
 
-      // Animate panel transition
-      panels.forEach(p => {
-        if (p.classList.contains('active')) {
-          p.style.opacity = '0';
-          p.style.transform = 'translateY(10px)';
-          setTimeout(() => {
-            p.classList.remove('active');
-            p.style.opacity = '';
-            p.style.transform = '';
-          }, 200);
-        }
-      });
+      // Move indicator
+      moveIndicator(tab);
 
-      // Show new panel with animation
-      setTimeout(() => {
-        const panel = document.getElementById(tabId);
-        if (panel) {
-          panel.classList.add('active');
-          panel.style.opacity = '0';
-          panel.style.transform = 'translateY(10px)';
-          requestAnimationFrame(() => {
-            panel.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-            panel.style.opacity = '1';
-            panel.style.transform = 'translateY(0)';
-          });
-        }
-      }, 200);
+      // Smooth crossfade - just swap active class
+      if (currentPanel) {
+        currentPanel.classList.remove('active');
+      }
+      if (newPanel) {
+        newPanel.classList.add('active');
+      }
     });
+  });
+
+  // Update indicator on window resize
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const activeTab = document.querySelector('.services__tab.active');
+      if (activeTab) {
+        moveIndicator(activeTab);
+      }
+    }, 100);
   });
 }
 
@@ -328,7 +377,7 @@ function initTextSplit() {
 // Hover Tilt Effect for Cards
 // ==========================================================================
 function initTiltEffect() {
-  const cards = document.querySelectorAll('.stat-card, .comparison__card, .team-card');
+  const cards = document.querySelectorAll('.team-card');
 
   cards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
@@ -503,19 +552,80 @@ function initFormAnimations() {
 }
 
 // ==========================================================================
+// Process Timeline Animation
+// ==========================================================================
+function initProcessTimeline() {
+  const timeline = document.querySelector('.process__timeline');
+  if (!timeline) return;
+
+  const steps = timeline.querySelectorAll('.process__step');
+  const progressBar = timeline.querySelector('.process__timeline-progress');
+  let currentStep = 0;
+  let animationInterval;
+
+  // Intersection observer to start animation when visible
+  const timelineObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        startStepAnimation();
+      } else {
+        entry.target.classList.remove('visible');
+        stopStepAnimation();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  timelineObserver.observe(timeline);
+
+  function startStepAnimation() {
+    // Set first step as active initially
+    currentStep = 0;
+    updateActiveStep();
+
+    // Sync with CSS animation (6 seconds total, 2 seconds per phase)
+    animationInterval = setInterval(() => {
+      currentStep = (currentStep + 1) % steps.length;
+      updateActiveStep();
+    }, 2000); // 6s animation / 3 steps = 2s per step
+  }
+
+  function stopStepAnimation() {
+    if (animationInterval) {
+      clearInterval(animationInterval);
+    }
+    steps.forEach(step => step.classList.remove('active'));
+  }
+
+  function updateActiveStep() {
+    steps.forEach((step, index) => {
+      if (index === currentStep) {
+        step.classList.add('active');
+      } else {
+        step.classList.remove('active');
+      }
+    });
+  }
+}
+
+// ==========================================================================
 // Initialize All
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
+  // Lenis smooth scroll
+  initLenis();
+
   // Core animations
-  initScrollProgress();
+  // initScrollProgress(); // Disabled - removed progress bar
   initScrollAnimations();
   initNavigation();
-  initSmoothScroll();
+  // initSmoothScroll(); // Replaced by Lenis
 
   // Interactive elements
   initFaqAccordion();
   initServicesTabs();
   initCounterAnimations();
+  initProcessTimeline();
 
   // Enhanced effects
   initMagneticButtons();
