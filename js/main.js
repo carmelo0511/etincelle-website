@@ -161,22 +161,39 @@ function initCounterAnimations() {
 }
 
 // ==========================================================================
-// Magnetic Button Effect
+// Liquid Button Effect
 // ==========================================================================
-function initMagneticButtons() {
+function initLiquidButtons() {
   const buttons = document.querySelectorAll('.btn');
 
   buttons.forEach(button => {
-    button.addEventListener('mousemove', (e) => {
+    // Create liquid ripple effect on click
+    button.addEventListener('click', function(e) {
       const rect = button.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-
-      button.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Create ripple element
+      const ripple = document.createElement('span');
+      ripple.className = 'liquid-ripple';
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
+      
+      button.appendChild(ripple);
+      
+      // Remove ripple after animation
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
     });
 
-    button.addEventListener('mouseleave', () => {
-      button.style.transform = 'translate(0, 0)';
+    // Enhanced hover effect with liquid flow
+    button.addEventListener('mouseenter', function() {
+      button.classList.add('liquid-active');
+    });
+
+    button.addEventListener('mouseleave', function() {
+      button.classList.remove('liquid-active');
     });
   });
 }
@@ -555,6 +572,601 @@ function initCursorFollow() {
 }
 
 // ==========================================================================
+// User Presence Avatar Animation
+// ==========================================================================
+function initUserPresenceAvatars() {
+  const presenceGroup = document.querySelector('.presence-group');
+  if (!presenceGroup) return;
+
+  const presenceItems = presenceGroup.querySelectorAll('.presence-item');
+  if (presenceItems.length === 0) return;
+
+  // Store base positions and animation state for each item
+  const itemStates = Array.from(presenceItems).map((item, index) => {
+    const baseX = parseFloat(item.style.getPropertyValue('--x') || '0');
+    const baseY = parseFloat(item.style.getPropertyValue('--y') || '0');
+    
+    return {
+      item,
+      baseX,
+      baseY,
+      currentX: baseX,
+      currentY: baseY,
+      floatRadius: 8 + Math.random() * 6,
+      floatSpeed: 0.0008 + Math.random() * 0.0004,
+      floatPhase: Math.random() * Math.PI * 2,
+      time: index * 0.5, // Stagger start times
+      isFloating: true
+    };
+  });
+
+  // Mouse interaction state
+  let mouseX = 0;
+  let mouseY = 0;
+  let isHovering = false;
+
+  presenceGroup.addEventListener('mousemove', (e) => {
+    const rect = presenceGroup.getBoundingClientRect();
+    mouseX = e.clientX - rect.left - rect.width / 2;
+    mouseY = e.clientY - rect.top - rect.height / 2;
+  });
+
+  presenceGroup.addEventListener('mouseenter', () => {
+    isHovering = true;
+  });
+
+  presenceGroup.addEventListener('mouseleave', () => {
+    isHovering = false;
+    mouseX = 0;
+    mouseY = 0;
+  });
+
+  // Main animation loop
+  function animate() {
+    itemStates.forEach((state) => {
+      if (isHovering && (Math.abs(mouseX) > 1 || Math.abs(mouseY) > 1)) {
+        // Cursor interaction mode - repel from cursor
+        const distance = Math.sqrt(
+          Math.pow(state.baseX - mouseX, 2) + Math.pow(state.baseY - mouseY, 2)
+        );
+        
+        const repelDistance = 120;
+        if (distance < repelDistance) {
+          const repelStrength = (1 - distance / repelDistance) * 15;
+          const angle = Math.atan2(state.baseY - mouseY, state.baseX - mouseX);
+          state.currentX = state.baseX + Math.cos(angle) * repelStrength;
+          state.currentY = state.baseY + Math.sin(angle) * repelStrength;
+        } else {
+          // Smooth return to base position
+          state.currentX += (state.baseX - state.currentX) * 0.1;
+          state.currentY += (state.baseY - state.currentY) * 0.1;
+        }
+        state.isFloating = false;
+      } else {
+        // Floating animation mode
+        state.time += 0.016;
+        const offsetX = Math.sin(state.time * state.floatSpeed + state.floatPhase) * state.floatRadius;
+        const offsetY = Math.cos(state.time * state.floatSpeed * 1.3 + state.floatPhase) * state.floatRadius * 0.7;
+        state.currentX = state.baseX + offsetX;
+        state.currentY = state.baseY + offsetY;
+        state.isFloating = true;
+      }
+
+      // Apply transform
+      state.item.style.transform = `translate(-50%, -50%) translate(${state.currentX}px, ${state.currentY}px)`;
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  // Start animation after a brief delay to let CSS animations complete
+  setTimeout(() => {
+    animate();
+  }, 600);
+}
+
+// ==========================================================================
+// Code Typing Animation
+// ==========================================================================
+function initCodeTyping() {
+  const codeContent = document.getElementById('codeContent');
+  const codeCursor = document.getElementById('codeCursor');
+  const copyButton = document.querySelector('.code-header__copy');
+  
+  if (!codeContent || !codeCursor) return;
+
+  // Store the original HTML content
+  const originalHTML = codeContent.innerHTML;
+  const plainCode = `// Built with Lovable, Cursor & Claude Code
+// Automated with n8n
+
+export async function createBooking(data) {
+  // Save booking
+  const booking = await saveToDatabase(data);
+  
+  // Trigger n8n workflow
+  await n8n.webhook('new-booking', booking);
+  
+  return booking;
+}
+
+export async function syncSchedule() {
+  const bookings = await getBookings();
+  await n8n.webhook('sync-schedule', bookings);
+  
+  return bookings;
+}`;
+
+  // Reset content
+  codeContent.innerHTML = '';
+  codeCursor.classList.remove('hidden');
+  codeContent.classList.add('writing');
+
+  // Parse code into tokens with syntax highlighting
+  function parseCode(code) {
+    const lines = code.split('\n');
+    const tokens = [];
+    
+    lines.forEach((line, lineIndex) => {
+      if (line.trim() === '') {
+        tokens.push({ type: 'newline', value: '\n' });
+        return;
+      }
+      
+      // Tokenize the line
+      const lineTokens = [];
+      let i = 0;
+      let currentToken = '';
+      let inString = false;
+      let stringChar = '';
+      let inTag = false;
+      
+      while (i < line.length) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+        
+        // Handle strings
+        if ((char === '"' || char === "'") && !inTag) {
+          if (!inString) {
+            if (currentToken) {
+              lineTokens.push({ type: 'text', value: currentToken });
+              currentToken = '';
+            }
+            inString = true;
+            stringChar = char;
+            lineTokens.push({ type: 'string', value: char });
+          } else if (char === stringChar && line[i - 1] !== '\\') {
+            lineTokens.push({ type: 'string', value: char });
+            inString = false;
+            stringChar = '';
+          } else {
+            lineTokens.push({ type: 'string', value: char });
+          }
+          i++;
+          continue;
+        }
+        
+        if (inString) {
+          lineTokens.push({ type: 'string', value: char });
+          i++;
+          continue;
+        }
+        
+        // Handle JSX tags
+        if (char === '<' && nextChar && /[a-zA-Z]/.test(nextChar)) {
+          if (currentToken) {
+            lineTokens.push({ type: 'text', value: currentToken });
+            currentToken = '';
+          }
+          inTag = true;
+          lineTokens.push({ type: 'tag', value: char });
+          i++;
+          continue;
+        }
+        
+        if (inTag) {
+          if (char === '>' || (char === '/' && nextChar === '>')) {
+            lineTokens.push({ type: 'tag', value: char });
+            inTag = false;
+          } else {
+            lineTokens.push({ type: 'tag', value: char });
+          }
+          i++;
+          continue;
+        }
+        
+        // Handle keywords
+        const keywords = ['import', 'export', 'async', 'await', 'function', 'type', 'return', 'as', 'from', 'use', 'const', 'let', 'var'];
+        const keywordMatch = line.substring(i).match(/^(\w+)/);
+        if (keywordMatch && keywords.includes(keywordMatch[1])) {
+          if (currentToken) {
+            lineTokens.push({ type: 'text', value: currentToken });
+            currentToken = '';
+          }
+          lineTokens.push({ type: 'keyword', value: keywordMatch[1] });
+          i += keywordMatch[1].length;
+          continue;
+        }
+        
+        // Handle types (after 'type' keyword or in type annotations)
+        if (line.substring(Math.max(0, i - 10), i).match(/type\s+\w+\s*=|:\s*$/)) {
+          const typeMatch = line.substring(i).match(/^([A-Z]\w*)/);
+          if (typeMatch) {
+            if (currentToken) {
+              lineTokens.push({ type: 'text', value: currentToken });
+              currentToken = '';
+            }
+            lineTokens.push({ type: 'type', value: typeMatch[1] });
+            i += typeMatch[1].length;
+            continue;
+          }
+        }
+        
+        // Handle function names (after 'function' or 'async function' keyword)
+        if (line.substring(Math.max(0, i - 20), i).match(/(async\s+)?function\s+$/)) {
+          const funcMatch = line.substring(i).match(/^(\w+)/);
+          if (funcMatch) {
+            if (currentToken) {
+              lineTokens.push({ type: 'text', value: currentToken });
+              currentToken = '';
+            }
+            lineTokens.push({ type: 'function', value: funcMatch[1] });
+            i += funcMatch[1].length;
+            continue;
+          }
+        }
+        
+        // Handle async function names
+        if (line.substring(Math.max(0, i - 10), i).match(/async\s+function\s+\w+/)) {
+          const asyncFuncMatch = line.substring(i).match(/^(\w+)/);
+          if (asyncFuncMatch && !keywords.includes(asyncFuncMatch[1])) {
+            if (currentToken) {
+              lineTokens.push({ type: 'text', value: currentToken });
+              currentToken = '';
+            }
+            lineTokens.push({ type: 'function', value: asyncFuncMatch[1] });
+            i += asyncFuncMatch[1].length;
+            continue;
+          }
+        }
+        
+        // Handle parameters (in function parentheses)
+        if (line.substring(Math.max(0, i - 20), i).match(/\([^)]*$/)) {
+          const paramMatch = line.substring(i).match(/^(\w+)/);
+          if (paramMatch && !keywords.includes(paramMatch[1])) {
+            if (currentToken) {
+              lineTokens.push({ type: 'text', value: currentToken });
+              currentToken = '';
+            }
+            lineTokens.push({ type: 'param', value: paramMatch[1] });
+            i += paramMatch[1].length;
+            continue;
+          }
+        }
+        
+        currentToken += char;
+        i++;
+      }
+      
+      if (currentToken) {
+        lineTokens.push({ type: 'text', value: currentToken });
+      }
+      
+      tokens.push(...lineTokens);
+      if (lineIndex < lines.length - 1) {
+        tokens.push({ type: 'newline', value: '\n' });
+      }
+    });
+    
+    return tokens;
+  }
+
+  const tokens = parseCode(plainCode);
+  let currentTokenIndex = 0;
+  const duration = 4000; // 4 seconds total
+  const delay = 800; // Start delay
+  const charDelay = duration / plainCode.length;
+
+  function typeNext() {
+    if (currentTokenIndex < tokens.length) {
+      const token = tokens[currentTokenIndex];
+      const span = document.createElement('span');
+      
+      if (token.type === 'newline') {
+        const lineBreak = document.createElement('br');
+        codeContent.appendChild(lineBreak);
+        currentTokenIndex++;
+        setTimeout(typeNext, charDelay * 2);
+        return;
+      }
+      
+      // Type character by character for this token
+      let charIndex = 0;
+      function typeChar() {
+        if (charIndex < token.value.length) {
+          span.textContent = token.value[charIndex];
+          span.className = `code-${token.type}`;
+          codeContent.appendChild(span.cloneNode(true));
+          charIndex++;
+          setTimeout(typeChar, charDelay);
+        } else {
+          currentTokenIndex++;
+          setTimeout(typeNext, charDelay);
+        }
+      }
+      typeChar();
+    } else {
+      // Typing complete
+      codeContent.classList.remove('writing');
+      codeCursor.classList.remove('hidden');
+    }
+    
+    // Scroll to bottom
+    codeContent.parentElement.scrollTop = codeContent.parentElement.scrollHeight;
+  }
+
+  // Start typing after delay
+  setTimeout(() => {
+    typeNext();
+  }, delay);
+
+  // Copy button functionality
+  if (copyButton) {
+    copyButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(plainCode);
+        const originalHTML = copyButton.innerHTML;
+        copyButton.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        `;
+        setTimeout(() => {
+          copyButton.innerHTML = originalHTML;
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    });
+  }
+}
+
+// ==========================================================================
+// Smooth Cursor
+// ==========================================================================
+function initSmoothCursor() {
+  const cursor = document.getElementById('smoothCursor');
+  if (!cursor) return;
+
+  // Only show on desktop
+  if (window.innerWidth <= 768) {
+    cursor.style.display = 'none';
+    return;
+  }
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let cursorX = 0;
+  let cursorY = 0;
+  let isVisible = false;
+
+  // Track mouse position
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    
+    // Show cursor on first movement
+    if (!isVisible) {
+      cursor.style.opacity = '1';
+      isVisible = true;
+    }
+  });
+
+  // Smooth cursor animation
+  function animateCursor() {
+    // Smooth interpolation (lerp)
+    cursorX += (mouseX - cursorX) * 0.15;
+    cursorY += (mouseY - cursorY) * 0.15;
+
+    // Position at tip of cursor (not centered)
+    cursor.style.left = `${cursorX}px`;
+    cursor.style.top = `${cursorY}px`;
+
+    requestAnimationFrame(animateCursor);
+  }
+
+  // Start animation
+  animateCursor();
+
+  // Hide cursor when mouse leaves window
+  document.addEventListener('mouseleave', () => {
+    cursor.style.opacity = '0';
+    isVisible = false;
+  });
+
+  document.addEventListener('mouseenter', () => {
+    if (isVisible) {
+      cursor.style.opacity = '1';
+    }
+  });
+
+  // Add hover effects for interactive elements
+  const interactiveElements = document.querySelectorAll(
+    'a, button, .btn, input, textarea, select, [role="button"], .nav__link, .faq__question'
+  );
+
+  interactiveElements.forEach((el) => {
+    el.addEventListener('mouseenter', () => {
+      cursor.classList.add('hover');
+    });
+
+    el.addEventListener('mouseleave', () => {
+      cursor.classList.remove('hover');
+    });
+  });
+
+  // Hide default cursor on desktop
+  document.body.style.cursor = 'none';
+
+  // Handle window resize
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      if (window.innerWidth <= 768) {
+        cursor.style.display = 'none';
+        document.body.style.cursor = '';
+      } else {
+        cursor.style.display = '';
+        document.body.style.cursor = 'none';
+      }
+    }, 100);
+  });
+}
+
+// ==========================================================================
+// Animated Tooltip
+// ==========================================================================
+function initAnimatedTooltips() {
+  const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+  
+  tooltipTriggers.forEach(trigger => {
+    const tooltip = trigger.nextElementSibling;
+    if (!tooltip || !tooltip.classList.contains('tooltip')) return;
+    
+    let openTimeout;
+    let closeTimeout;
+    const openDelay = 500; // ms delay before showing
+    const closeDelay = 100; // ms delay before hiding
+    
+    const showTooltip = () => {
+      clearTimeout(closeTimeout);
+      clearTimeout(openTimeout);
+      
+      openTimeout = setTimeout(() => {
+        tooltip.classList.add('show');
+      }, openDelay);
+    };
+    
+    const hideTooltip = () => {
+      clearTimeout(openTimeout);
+      clearTimeout(closeTimeout);
+      
+      closeTimeout = setTimeout(() => {
+        tooltip.classList.remove('show');
+      }, closeDelay);
+    };
+    
+    trigger.addEventListener('mouseenter', showTooltip);
+    trigger.addEventListener('mouseleave', hideTooltip);
+    trigger.addEventListener('focus', showTooltip);
+    trigger.addEventListener('blur', hideTooltip);
+    
+    // Also handle tooltip hover to keep it visible
+    tooltip.addEventListener('mouseenter', () => {
+      clearTimeout(closeTimeout);
+    });
+    
+    tooltip.addEventListener('mouseleave', hideTooltip);
+  });
+}
+
+// ==========================================================================
+// Animated Beam Component
+// ==========================================================================
+function initAnimatedBeams() {
+  const container = document.getElementById('animatedBeamContainer');
+  const svg = document.getElementById('animatedBeamsSvg');
+  
+  if (!container || !svg) return;
+
+  let resizeTimeout;
+  
+  function drawBeams() {
+    const centerCircle = container.querySelector('[data-ref="centerCircle"]');
+    const circles = container.querySelectorAll('.animated-beam-circle:not(.animated-beam-circle--center)');
+    
+    if (!centerCircle || circles.length === 0) return;
+
+    const centerRect = centerCircle.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const centerX = centerRect.left + centerRect.width / 2 - containerRect.left;
+    const centerY = centerRect.top + centerRect.height / 2 - containerRect.top;
+
+    // Clear existing paths
+    svg.innerHTML = '';
+
+    circles.forEach((circle, index) => {
+      const circleRect = circle.getBoundingClientRect();
+      const circleX = circleRect.left + circleRect.width / 2 - containerRect.left;
+      const circleY = circleRect.top + circleRect.height / 2 - containerRect.top;
+
+      // Calculate distance and angle
+      const dx = circleX - centerX;
+      const dy = circleY - centerY;
+      const angle = Math.atan2(dy, dx);
+
+      // Calculate start and end points (edge of circles)
+      const centerRadius = centerRect.width / 2;
+      const circleRadius = circleRect.width / 2;
+      
+      const startX = centerX + Math.cos(angle) * centerRadius;
+      const startY = centerY + Math.sin(angle) * centerRadius;
+      const endX = circleX - Math.cos(angle) * circleRadius;
+      const endY = circleY - Math.sin(angle) * circleRadius;
+
+      // Create curved path
+      const midX = (startX + endX) / 2;
+      const midY = (startY + endY) / 2;
+      
+      // Add curvature based on position
+      let curvature = 0;
+      if (index % 2 === 0) {
+        curvature = -25;
+      } else {
+        curvature = 25;
+      }
+      
+      // Perpendicular offset for curve
+      const perpX = -Math.sin(angle) * curvature;
+      const perpY = Math.cos(angle) * curvature;
+      
+      const controlX = midX + perpX;
+      const controlY = midY + perpY;
+
+      // Create SVG path
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const pathData = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+      path.setAttribute('d', pathData);
+      path.setAttribute('class', 'animated-beam-path animated-beam-path--animated');
+      path.setAttribute('style', `animation-delay: ${index * 0.15}s`);
+      
+      svg.appendChild(path);
+    });
+  }
+
+  // Initial draw after layout
+  setTimeout(drawBeams, 200);
+
+  // Redraw on resize
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(drawBeams, 150);
+  });
+
+  // Redraw when section becomes visible
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        setTimeout(drawBeams, 100);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  observer.observe(container);
+}
+
+// ==========================================================================
 // Initialize All
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -576,11 +1188,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initMovingFlower();
 
   // Enhanced effects
-  initMagneticButtons();
+  initLiquidButtons();
   initParallax();
   initTiltEffect();
   initCursorGlow();
   initFormAnimations();
+  initUserPresenceAvatars();
+  initCodeTyping();
+  initSmoothCursor();
+  initAnimatedTooltips();
+  initAnimatedBeams();
 
   // Mobile
   initMobileNav();
