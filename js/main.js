@@ -4,60 +4,6 @@
  */
 
 // ==========================================================================
-// Lenis Smooth Scroll - Framer-like buttery scrolling
-// ==========================================================================
-let lenis;
-
-function initLenis() {
-  lenis = new Lenis({
-    duration: 0.4,
-    easing: (t) => t,
-    orientation: 'vertical',
-    gestureOrientation: 'vertical',
-    smoothWheel: true,
-    wheelMultiplier: 1.1,
-    touchMultiplier: 1,
-    infinite: false,
-  });
-
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
-
-  requestAnimationFrame(raf);
-
-  // Connect Lenis to anchor links
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('href');
-      const target = document.querySelector(targetId);
-      if (target) {
-        lenis.scrollTo(target, { offset: -80 });
-      }
-    });
-  });
-}
-
-// ==========================================================================
-// Scroll Progress Indicator
-// ==========================================================================
-function initScrollProgress() {
-  // Create progress bar
-  const progressBar = document.createElement('div');
-  progressBar.className = 'scroll-progress';
-  document.body.appendChild(progressBar);
-
-  window.addEventListener('scroll', () => {
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const scrollPercent = (scrollTop / docHeight) * 100;
-    progressBar.style.width = `${scrollPercent}%`;
-  }, { passive: true });
-}
-
-// ==========================================================================
 // Enhanced Scroll Animations with Intersection Observer
 // ==========================================================================
 function initScrollAnimations() {
@@ -164,30 +110,6 @@ function initFaqAccordion() {
       } else {
         item.classList.add('active');
         answer.style.maxHeight = answerInner.offsetHeight + 'px';
-      }
-    });
-  });
-}
-
-// ==========================================================================
-// Smooth Scroll with Easing
-// ==========================================================================
-function initSmoothScroll() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('href');
-      const target = document.querySelector(targetId);
-
-      if (target) {
-        const headerOffset = 80;
-        const elementPosition = target.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
       }
     });
   });
@@ -362,18 +284,6 @@ function initParallax() {
 }
 
 // ==========================================================================
-// Text Split Animation (for headings)
-// ==========================================================================
-function initTextSplit() {
-  const textElements = document.querySelectorAll('.text-reveal');
-
-  textElements.forEach(element => {
-    const text = element.textContent;
-    element.innerHTML = `<span>${text}</span>`;
-  });
-}
-
-// ==========================================================================
 // Hover Tilt Effect for Cards
 // ==========================================================================
 function initTiltEffect() {
@@ -401,46 +311,6 @@ function initTiltEffect() {
       card.style.transition = 'none';
     });
   });
-}
-
-// ==========================================================================
-// Typing Effect for Hero (optional)
-// ==========================================================================
-function initTypingEffect() {
-  const element = document.querySelector('.typing-text');
-  if (!element) return;
-
-  const words = ['clarity.', 'results.', 'innovation.'];
-  let wordIndex = 0;
-  let charIndex = 0;
-  let isDeleting = false;
-
-  function type() {
-    const currentWord = words[wordIndex];
-
-    if (isDeleting) {
-      element.textContent = currentWord.substring(0, charIndex - 1);
-      charIndex--;
-    } else {
-      element.textContent = currentWord.substring(0, charIndex + 1);
-      charIndex++;
-    }
-
-    let typeSpeed = isDeleting ? 50 : 100;
-
-    if (!isDeleting && charIndex === currentWord.length) {
-      typeSpeed = 2000;
-      isDeleting = true;
-    } else if (isDeleting && charIndex === 0) {
-      isDeleting = false;
-      wordIndex = (wordIndex + 1) % words.length;
-      typeSpeed = 500;
-    }
-
-    setTimeout(type, typeSpeed);
-  }
-
-  type();
 }
 
 // ==========================================================================
@@ -488,26 +358,61 @@ function initCursorGlow() {
 }
 
 // ==========================================================================
-// Smooth Reveal on Load
+// Page Loader with Letter Drop Animation
 // ==========================================================================
-function initPageReveal() {
-  // Add initial styles to body
-  document.body.style.opacity = '0';
+function initPageLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (!loader) return;
 
+  // Hide loader after animation completes
   window.addEventListener('load', () => {
-    document.body.style.transition = 'opacity 0.5s ease';
-    document.body.style.opacity = '1';
-
-    // Trigger hero animations
     setTimeout(() => {
-      const heroElements = document.querySelectorAll('.hero .fade-up, .hero__content, .hero__visual');
-      heroElements.forEach((el, index) => {
-        setTimeout(() => {
-          el.classList.add('visible');
-        }, index * 150);
-      });
-    }, 200);
+      loader.classList.add('hidden');
+      // Trigger hero animations after loader hides
+      setTimeout(() => {
+        const heroElements = document.querySelectorAll('.hero .fade-up');
+        heroElements.forEach((el, index) => {
+          setTimeout(() => {
+            el.classList.add('visible');
+          }, index * 150);
+        });
+      }, 300);
+    }, 1800); // Wait for letter animation to complete
   });
+}
+
+// ==========================================================================
+// Moving Hero Background Animation
+// ==========================================================================
+function initMovingFlower() {
+  const flower = document.getElementById('heroFlower');
+  if (!flower) return;
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let currentX = 0;
+  let currentY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    const rect = flower.parentElement.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Calculate offset from center (normalized -1 to 1)
+    mouseX = (e.clientX - centerX) / (rect.width / 2);
+    mouseY = (e.clientY - centerY) / (rect.height / 2);
+  });
+
+  function animate() {
+    // Smooth interpolation
+    currentX += (mouseX * 20 - currentX) * 0.05;
+    currentY += (mouseY * 15 - currentY) * 0.05;
+
+    flower.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    requestAnimationFrame(animate);
+  }
+
+  animate();
 }
 
 // ==========================================================================
@@ -609,23 +514,66 @@ function initProcessTimeline() {
 }
 
 // ==========================================================================
+// Cursor Follow Effect for Comparison Cards
+// ==========================================================================
+function initCursorFollow() {
+  const cards = document.querySelectorAll('[data-cursor-area]');
+
+  cards.forEach(card => {
+    const cursorFollow = card.querySelector('.cursor-follow');
+    if (!cursorFollow) return;
+
+    let mouseX = 0, mouseY = 0;
+    let currentX = 0, currentY = 0;
+    let animationFrame;
+
+    function animate() {
+      // Smooth interpolation
+      currentX += (mouseX - currentX) * 0.15;
+      currentY += (mouseY - currentY) * 0.15;
+
+      cursorFollow.style.left = `${currentX}px`;
+      cursorFollow.style.top = `${currentY}px`;
+
+      animationFrame = requestAnimationFrame(animate);
+    }
+
+    card.addEventListener('mouseenter', () => {
+      animate();
+    });
+
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top - 20; // Offset above cursor
+    });
+
+    card.addEventListener('mouseleave', () => {
+      cancelAnimationFrame(animationFrame);
+    });
+  });
+}
+
+// ==========================================================================
 // Initialize All
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Lenis smooth scroll
-  initLenis();
+  // Page loader
+  initPageLoader();
 
   // Core animations
-  // initScrollProgress(); // Disabled - removed progress bar
   initScrollAnimations();
   initNavigation();
-  // initSmoothScroll(); // Replaced by Lenis
 
   // Interactive elements
   initFaqAccordion();
   initServicesTabs();
   initCounterAnimations();
   initProcessTimeline();
+  initCursorFollow();
+
+  // Hero interactions
+  initMovingFlower();
 
   // Enhanced effects
   initMagneticButtons();
@@ -636,14 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Mobile
   initMobileNav();
-
-  // Optional effects
-  // initTypingEffect();
-  // initTextSplit();
 });
-
-// Page reveal animation
-initPageReveal();
 
 // ==========================================================================
 // Utility Functions
