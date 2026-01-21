@@ -1167,6 +1167,163 @@ function initAnimatedBeams() {
 }
 
 // ==========================================================================
+// Animated Notification List for Industries
+// ==========================================================================
+function initIndustriesAnimatedList() {
+  const container = document.getElementById('industriesAnimatedList');
+  const listInner = document.getElementById('industriesListInner');
+
+  if (!container || !listInner) return;
+
+  // Notification data
+  const notifications = [
+    {
+      name: "Restaurant booked",
+      description: "Table for 4 confirmed",
+      icon: "🍽️",
+      color: "#00C9A7",
+      time: "Just now"
+    },
+    {
+      name: "Appointment set",
+      description: "Haircut & styling",
+      icon: "💇",
+      color: "#FFB800",
+      time: "2m ago"
+    },
+    {
+      name: "New member joined",
+      description: "Gym membership activated",
+      icon: "💪",
+      color: "#FF3D71",
+      time: "5m ago"
+    },
+    {
+      name: "Invoice sent",
+      description: "Consulting services",
+      icon: "📄",
+      color: "#1E86FF",
+      time: "8m ago"
+    },
+    {
+      name: "Staff scheduled",
+      description: "Weekend shift covered",
+      icon: "📅",
+      color: "#9B59B6",
+      time: "12m ago"
+    },
+    {
+      name: "Inventory alert",
+      description: "Reorder supplies",
+      icon: "📦",
+      color: "#E67E22",
+      time: "15m ago"
+    },
+    {
+      name: "Payment received",
+      description: "Client subscription",
+      icon: "💸",
+      color: "#27AE60",
+      time: "18m ago"
+    },
+    {
+      name: "Class reminder",
+      description: "Yoga starts in 1 hour",
+      icon: "🧘",
+      color: "#3498DB",
+      time: "20m ago"
+    }
+  ];
+
+  let isAnimating = false;
+  let animationInterval = null;
+
+  // Create notification element
+  function createNotification(data) {
+    const item = document.createElement('div');
+    item.className = 'notification-item';
+    item.innerHTML = `
+      <div class="notification-item__content">
+        <div class="notification-item__icon" style="background-color: ${data.color}">
+          <span>${data.icon}</span>
+        </div>
+        <div class="notification-item__text">
+          <div class="notification-item__header">
+            <span class="notification-item__name">${data.name}</span>
+            <span class="notification-item__dot">·</span>
+            <span class="notification-item__time">${data.time}</span>
+          </div>
+          <p class="notification-item__description">${data.description}</p>
+        </div>
+      </div>
+    `;
+    return item;
+  }
+
+  // Add notification with animation
+  function addNotification(index) {
+    const data = notifications[index % notifications.length];
+    const item = createNotification(data);
+
+    // Add to the top of the list
+    listInner.insertBefore(item, listInner.firstChild);
+
+    // Remove old items if more than 5
+    const items = listInner.querySelectorAll('.notification-item');
+    if (items.length > 5) {
+      const oldItem = items[items.length - 1];
+      oldItem.style.opacity = '0';
+      oldItem.style.transform = 'translateY(20px)';
+      setTimeout(() => oldItem.remove(), 300);
+    }
+  }
+
+  // Start animation loop
+  function startAnimation() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    let index = 0;
+
+    // Add initial items
+    for (let i = 0; i < 4; i++) {
+      setTimeout(() => {
+        addNotification(index);
+        index++;
+      }, i * 600);
+    }
+
+    // Continue adding items
+    animationInterval = setInterval(() => {
+      addNotification(index);
+      index++;
+    }, 3000);
+  }
+
+  // Stop animation
+  function stopAnimation() {
+    isAnimating = false;
+    if (animationInterval) {
+      clearInterval(animationInterval);
+      animationInterval = null;
+    }
+  }
+
+  // Intersection observer to start/stop animation
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        startAnimation();
+      } else {
+        stopAnimation();
+      }
+    });
+  }, { threshold: 0.2 });
+
+  observer.observe(container);
+}
+
+// ==========================================================================
 // Initialize All
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -1198,6 +1355,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothCursor();
   initAnimatedTooltips();
   initAnimatedBeams();
+  initIndustriesAnimatedList();
 
   // Mobile
   initMobileNav();
