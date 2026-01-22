@@ -1188,6 +1188,89 @@ function initAnimatedBeams() {
 }
 
 // ==========================================================================
+// Why Us Animated Beams (Gmail, Stripe, Sheets, Notion, Anthropic → Etincelle → You)
+// ==========================================================================
+function initWhyUsBeams() {
+  const container = document.getElementById('whyUsBeamContainer');
+  const svg = document.getElementById('whyUsBeamSvg');
+  if (!container || !svg) return;
+
+  const fromRefs = ['beam1', 'beam2', 'beam3', 'beam4', 'beam5'];
+  const centerRef = 'beamCenter';
+  const toRef = 'beam7';
+
+  let resizeTimeout;
+
+  function drawBeams() {
+    const center = container.querySelector(`[data-ref="${centerRef}"]`);
+    const target = container.querySelector(`[data-ref="${toRef}"]`);
+    const fromEls = fromRefs.map(r => container.querySelector(`[data-ref="${r}"]`)).filter(Boolean);
+    if (!center || !target || fromEls.length === 0) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const centerRect = center.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+
+    const cx = centerRect.left - containerRect.left + centerRect.width / 2;
+    const cy = centerRect.top - containerRect.top + centerRect.height / 2;
+    const tx = targetRect.left - containerRect.left + targetRect.width / 2;
+    const ty = targetRect.top - containerRect.top + targetRect.height / 2;
+    const centerR = Math.max(centerRect.width, centerRect.height) / 2;
+    const targetR = Math.max(targetRect.width, targetRect.height) / 2;
+
+    svg.innerHTML = '';
+    const ns = 'http://www.w3.org/2000/svg';
+
+    function addPath(fromX, fromY, toX, toY, fromR, toR, curvature, delay) {
+      const dx = toX - fromX;
+      const dy = toY - fromY;
+      const angle = Math.atan2(dy, dx);
+      const startX = fromX + Math.cos(angle) * fromR;
+      const startY = fromY + Math.sin(angle) * fromR;
+      const endX = toX - Math.cos(angle) * toR;
+      const endY = toY - Math.sin(angle) * toR;
+      const midX = (startX + endX) / 2;
+      const midY = (startY + endY) / 2;
+      const perpX = -Math.sin(angle) * curvature;
+      const perpY = Math.cos(angle) * curvature;
+      const ctrlX = midX + perpX;
+      const ctrlY = midY + perpY;
+      const path = document.createElementNS(ns, 'path');
+      path.setAttribute('d', `M ${startX} ${startY} Q ${ctrlX} ${ctrlY} ${endX} ${endY}`);
+      path.setAttribute('class', 'why-us-beam-path why-us-beam-path--animated');
+      path.setAttribute('style', `animation-delay: ${delay}s`);
+      svg.appendChild(path);
+    }
+
+    fromEls.forEach((el, i) => {
+      const r = el.getBoundingClientRect();
+      const fx = r.left - containerRect.left + r.width / 2;
+      const fy = r.top - containerRect.top + r.height / 2;
+      const fr = Math.max(r.width, r.height) / 2;
+      const curve = i % 2 === 0 ? -20 : 20;
+      addPath(fx, fy, cx, cy, fr, centerR, curve, i * 0.1);
+    });
+
+    const angleOut = Math.atan2(ty - cy, tx - cx);
+    const outStartX = cx + Math.cos(angleOut) * centerR;
+    const outStartY = cy + Math.sin(angleOut) * centerR;
+    const outEndX = tx - Math.cos(angleOut) * targetR;
+    const outEndY = ty - Math.sin(angleOut) * targetR;
+    addPath(outStartX, outStartY, outEndX, outEndY, 0, 0, 15, 0.5);
+  }
+
+  setTimeout(drawBeams, 200);
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(drawBeams, 150);
+  });
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) setTimeout(drawBeams, 100); });
+  }, { threshold: 0.1 });
+  io.observe(container);
+}
+
+// ==========================================================================
 // Animated Notification List for Industries
 // ==========================================================================
 function initIndustriesAnimatedList() {
@@ -1345,6 +1428,128 @@ function initIndustriesAnimatedList() {
 }
 
 // ==========================================================================
+// Reviews Marquee Animation
+// ==========================================================================
+function initReviewsMarquee() {
+  const marquees = document.querySelectorAll('.marquee[data-duration]');
+  
+  marquees.forEach(marquee => {
+    const duration = marquee.dataset.duration || '20s';
+    const content = marquee.querySelector('.marquee__content');
+    
+    if (content) {
+      content.style.animationDuration = duration;
+      
+      // Pause on hover
+      marquee.addEventListener('mouseenter', () => {
+        content.style.animationPlayState = 'paused';
+      });
+      
+      marquee.addEventListener('mouseleave', () => {
+        content.style.animationPlayState = 'running';
+      });
+    }
+  });
+}
+
+// ==========================================================================
+// Animated Pain Points List (Problem section)
+// ==========================================================================
+function initProblemPainPointsList() {
+  const container = document.getElementById('problemPainPointsList');
+  const listInner = document.getElementById('problemPainPointsListInner');
+
+  if (!container || !listInner) return;
+
+  const painPoints = [
+    { name: "Scheduling chaos", description: "Last-minute shift swaps & no-shows", icon: "📅", color: "#E67E22", time: "Every week" },
+    { name: "Invoices piling up", description: "Manual data entry from 5+ tools", icon: "📄", color: "#1E86FF", time: "Daily" },
+    { name: "Inventory gaps", description: "Stock-outs and overstock", icon: "📦", color: "#9B59B6", time: "Weekly" },
+    { name: "10+ hours wasted", description: "Manual work that could be automated", icon: "⏱️", color: "#FF6B4A", time: "Per week" },
+    { name: "Reports take forever", description: "Copy-paste from spreadsheets", icon: "📊", color: "#3498DB", time: "Weekly" },
+    { name: "Copy-paste between tools", description: "Errors & duplicate entry", icon: "📋", color: "#27AE60", time: "Daily" },
+    { name: "Staff scheduling headaches", description: "No single view of who's working", icon: "👥", color: "#FF3D71", time: "Every week" },
+    { name: "Manual follow-ups", description: "Chasing clients for payments", icon: "💸", color: "#00C9A7", time: "Daily" },
+  ];
+
+  let isAnimating = false;
+  let animationInterval = null;
+
+  function createItem(data) {
+    const item = document.createElement('div');
+    item.className = 'notification-item';
+    item.innerHTML = `
+      <div class="notification-item__content">
+        <div class="notification-item__icon" style="background-color: ${data.color}">
+          <span>${data.icon}</span>
+        </div>
+        <div class="notification-item__text">
+          <div class="notification-item__header">
+            <span class="notification-item__name">${data.name}</span>
+            <span class="notification-item__dot">·</span>
+            <span class="notification-item__time">${data.time}</span>
+          </div>
+          <p class="notification-item__description">${data.description}</p>
+        </div>
+      </div>
+    `;
+    return item;
+  }
+
+  function addItem(index) {
+    const data = painPoints[index % painPoints.length];
+    const item = createItem(data);
+    listInner.insertBefore(item, listInner.firstChild);
+
+    const items = listInner.querySelectorAll('.notification-item');
+    if (items.length > 5) {
+      const oldItem = items[items.length - 1];
+      oldItem.style.opacity = '0';
+      oldItem.style.transform = 'translateY(20px)';
+      setTimeout(() => oldItem.remove(), 300);
+    }
+  }
+
+  function startAnimation() {
+    if (isAnimating) return;
+    isAnimating = true;
+    let index = 0;
+
+    for (let i = 0; i < 4; i++) {
+      setTimeout(() => {
+        addItem(index);
+        index++;
+      }, i * 600);
+    }
+
+    animationInterval = setInterval(() => {
+      addItem(index);
+      index++;
+    }, 3000);
+  }
+
+  function stopAnimation() {
+    isAnimating = false;
+    if (animationInterval) {
+      clearInterval(animationInterval);
+      animationInterval = null;
+    }
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        startAnimation();
+      } else {
+        stopAnimation();
+      }
+    });
+  }, { threshold: 0.2 });
+
+  observer.observe(container);
+}
+
+// ==========================================================================
 // Initialize All
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -1375,8 +1580,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initCodeTyping();
   initSmoothCursor();
   initAnimatedTooltips();
-  initAnimatedBeams();
-  initIndustriesAnimatedList();
+  initWhyUsBeams();
+  initReviewsMarquee();
+  // initProblemPainPointsList(); // Replaced with reviews marquee
+  // initIndustriesAnimatedList(); // Replaced with Bento grid
 
   // Mobile
   initMobileNav();
