@@ -679,6 +679,7 @@ function initCodeTyping() {
   const originalHTML = codeContent.innerHTML;
   const plainCode = `// Built with Lovable, Cursor & Claude Code
 // Automated with n8n
+// Trusted by 10+ Toronto businesses
 
 export async function createBooking(data) {
   // Save booking
@@ -697,10 +698,8 @@ export async function syncSchedule() {
   return bookings;
 }`;
 
-  // Reset content
-  codeContent.innerHTML = '';
-  codeCursor.classList.remove('hidden');
-  codeContent.classList.add('writing');
+  let typingTimeout = null;
+  let animationInterval = null;
 
   // Parse code into tokens with syntax highlighting
   function parseCode(code) {
@@ -861,54 +860,76 @@ export async function syncSchedule() {
     return tokens;
   }
 
-  const tokens = parseCode(plainCode);
-  let currentTokenIndex = 0;
-  const duration = 4000; // 4 seconds total
-  const delay = 800; // Start delay
-  const charDelay = duration / plainCode.length;
-
-  function typeNext() {
-    if (currentTokenIndex < tokens.length) {
-      const token = tokens[currentTokenIndex];
-      const span = document.createElement('span');
-      
-      if (token.type === 'newline') {
-        const lineBreak = document.createElement('br');
-        codeContent.appendChild(lineBreak);
-        currentTokenIndex++;
-        setTimeout(typeNext, charDelay * 2);
-        return;
-      }
-      
-      // Type character by character for this token
-      let charIndex = 0;
-      function typeChar() {
-        if (charIndex < token.value.length) {
-          span.textContent = token.value[charIndex];
-          span.className = `code-${token.type}`;
-          codeContent.appendChild(span.cloneNode(true));
-          charIndex++;
-          setTimeout(typeChar, charDelay);
-        } else {
-          currentTokenIndex++;
-          setTimeout(typeNext, charDelay);
-        }
-      }
-      typeChar();
-    } else {
-      // Typing complete
-      codeContent.classList.remove('writing');
-      codeCursor.classList.remove('hidden');
+  // Function to start the typing animation
+  function startTypingAnimation() {
+    // Clear any existing timeouts
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+      typingTimeout = null;
     }
-    
-    // Scroll to bottom
-    codeContent.parentElement.scrollTop = codeContent.parentElement.scrollHeight;
+
+    // Reset content
+    codeContent.innerHTML = '';
+    codeCursor.classList.remove('hidden');
+    codeContent.classList.add('writing');
+
+    const tokens = parseCode(plainCode);
+    let currentTokenIndex = 0;
+    const duration = 4000; // 4 seconds total
+    const delay = 800; // Start delay
+    const charDelay = duration / plainCode.length;
+
+    function typeNext() {
+      if (currentTokenIndex < tokens.length) {
+        const token = tokens[currentTokenIndex];
+        const span = document.createElement('span');
+        
+        if (token.type === 'newline') {
+          const lineBreak = document.createElement('br');
+          codeContent.appendChild(lineBreak);
+          currentTokenIndex++;
+          typingTimeout = setTimeout(typeNext, charDelay * 2);
+          return;
+        }
+        
+        // Type character by character for this token
+        let charIndex = 0;
+        function typeChar() {
+          if (charIndex < token.value.length) {
+            span.textContent = token.value[charIndex];
+            span.className = `code-${token.type}`;
+            codeContent.appendChild(span.cloneNode(true));
+            charIndex++;
+            typingTimeout = setTimeout(typeChar, charDelay);
+          } else {
+            currentTokenIndex++;
+            typingTimeout = setTimeout(typeNext, charDelay);
+          }
+        }
+        typeChar();
+      } else {
+        // Typing complete
+        codeContent.classList.remove('writing');
+        codeCursor.classList.remove('hidden');
+      }
+      
+      // Scroll to bottom
+      codeContent.parentElement.scrollTop = codeContent.parentElement.scrollHeight;
+    }
+
+    // Start typing after delay
+    typingTimeout = setTimeout(() => {
+      typeNext();
+    }, delay);
   }
 
-  // Start typing after delay
-  setTimeout(() => {
-    typeNext();
-  }, delay);
+  // Start the initial animation
+  startTypingAnimation();
+
+  // Restart animation every 10 seconds
+  animationInterval = setInterval(() => {
+    startTypingAnimation();
+  }, 10000);
 
   // Copy button functionality
   if (copyButton) {

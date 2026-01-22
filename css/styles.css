@@ -1064,126 +1064,52 @@ h3 { font-size: var(--text-2xl); }
   overflow: hidden;
 }
 
-/* Discover - Purple/Blue with Orange flower */
+/* Discover - Chess game image */
 .tab-image--discover {
-  background: linear-gradient(
-    145deg,
-    #6B5B95 0%,
-    #7B6BA5 20%,
-    #8B7BB5 40%,
-    #9B8BC5 60%,
-    #AB9BD5 100%
-  );
+  background-image: url('../assets/images/vincseize_A_birds-eye_view_of_a_half-played_chess_game_on_an_iv_6c3b3357-89aa-4cda-8c46-53ce65c94f6d.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .tab-image--discover::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 70% at 50% 50%, rgba(155, 139, 197, 0.8), transparent 60%);
+  display: none;
 }
 
 .tab-image--discover::after {
-  content: '';
-  position: absolute;
-  width: 180px;
-  height: 200px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(
-    160deg,
-    rgba(255, 200, 150, 0.95) 0%,
-    rgba(255, 160, 100, 0.9) 30%,
-    rgba(255, 120, 80, 0.85) 60%,
-    rgba(200, 100, 80, 0.8) 100%
-  );
-  border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%;
-  filter: blur(2px);
-  animation: flowerFloat 8s ease-in-out infinite;
+  display: none;
 }
 
-/* Build - Yellow/Gold with Pink/Purple flower */
+/* Build - Architectural collage image */
 .tab-image--build {
-  background: linear-gradient(
-    145deg,
-    #E8D88C 0%,
-    #D4C878 20%,
-    #C4B868 40%,
-    #B8AC58 60%,
-    #ACA048 100%
-  );
+  background-image: url('../assets/images/phil211256_Create_an_architectural_collage_of_sketchy_modern_ho_cd9b02c9-828e-4072-a826-e7d15aa4c1d9.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .tab-image--build::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 70% at 50% 50%, rgba(232, 216, 140, 0.6), transparent 60%);
+  display: none;
 }
 
 .tab-image--build::after {
-  content: '';
-  position: absolute;
-  width: 160px;
-  height: 180px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(
-    160deg,
-    rgba(200, 150, 200, 0.9) 0%,
-    rgba(180, 120, 180, 0.85) 30%,
-    rgba(160, 100, 160, 0.8) 60%,
-    rgba(140, 80, 140, 0.75) 100%
-  );
-  border-radius: 50% 50% 45% 55% / 50% 55% 45% 50%;
-  filter: blur(3px);
-  animation: flowerFloat 8s ease-in-out infinite;
-  animation-delay: -2s;
+  display: none;
 }
 
-/* Deploy - Teal/Green with Yellow/Orange flower */
+/* Deploy - Astronaut portrait image */
 .tab-image--deploy {
-  background: linear-gradient(
-    145deg,
-    #4A9B8C 0%,
-    #5AAB9C 20%,
-    #6ABBAC 40%,
-    #7ACBBC 60%,
-    #8ADBCC 100%
-  );
+  background-image: url('../assets/images/neisab_Front-facing_astronaut_portrait_giving_the_middle_finger_c7b7d779-3bb3-4381-a110-7b2c2fd557c3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .tab-image--deploy::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 70% at 50% 50%, rgba(106, 187, 172, 0.6), transparent 60%);
+  display: none;
 }
 
 .tab-image--deploy::after {
-  content: '';
-  position: absolute;
-  width: 170px;
-  height: 190px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(
-    160deg,
-    rgba(255, 220, 150, 0.95) 0%,
-    rgba(255, 180, 120, 0.9) 30%,
-    rgba(255, 140, 100, 0.85) 60%,
-    rgba(220, 120, 80, 0.8) 100%
-  );
-  border-radius: 48% 52% 47% 53% / 52% 48% 52% 48%;
-  filter: blur(2px);
-  animation: flowerFloat 8s ease-in-out infinite;
-  animation-delay: -4s;
+  display: none;
 }
 
 /* Optimize - Orange/Coral with deep orange flower */
@@ -3172,12 +3098,78 @@ h3 { font-size: var(--text-2xl); }
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
+  position: relative;
 }
 
 @media (min-width: 768px) {
   .social-proof__trust {
     flex-direction: row;
     gap: var(--space-4);
+  }
+}
+
+.social-proof__cursor-wrapper {
+  position: absolute;
+  top: -8px;
+  left: -12px;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .social-proof__cursor-wrapper {
+    top: -6px;
+    left: -16px;
+  }
+}
+
+.social-proof__cursor-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  transform: translate(-10px, -10px) rotate(-45deg);
+  animation: cursorAppear 0.6s ease-out forwards,
+             cursorMove 2s ease-in-out 0.6s,
+             cursorDisappear 0.4s ease-in 2.6s;
+  animation-iteration-count: 1;
+}
+
+@keyframes cursorAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-10px, -10px) rotate(-45deg) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes cursorMove {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(8px, -8px) rotate(15deg);
+  }
+  50% {
+    transform: translate(12px, -4px) rotate(-10deg);
+  }
+  75% {
+    transform: translate(6px, 4px) rotate(5deg);
+  }
+}
+
+@keyframes cursorDisappear {
+  0% {
+    opacity: 1;
+    transform: translate(6px, 4px) rotate(5deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, 10px) rotate(45deg) scale(0.5);
   }
 }
 
