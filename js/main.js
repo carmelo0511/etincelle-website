@@ -25,11 +25,16 @@ function initScrollAnimations() {
     });
   }, observerOptions);
 
-  // Observe all animated elements
+  // Observe all animated elements (exclude hero elements - they're triggered by loader)
   const animatedElements = document.querySelectorAll(
-    '.fade-up, .fade-in, .scale-in, .slide-left, .slide-right, .blur-in, [data-animate]'
+    '.fade-up, .fade-in, .scale-in, .slide-left, .slide-right, .blur-in, .blur-fade-in, [data-animate]'
   );
-  animatedElements.forEach(el => animationObserver.observe(el));
+  animatedElements.forEach(el => {
+    // Skip hero elements - they're handled by the page loader
+    if (!el.closest('.hero')) {
+      animationObserver.observe(el);
+    }
+  });
 
   // Observe stagger containers
   const staggerContainers = document.querySelectorAll('.stagger');
@@ -387,7 +392,7 @@ function initPageLoader() {
       loader.classList.add('hidden');
       // Trigger hero animations after loader hides
       setTimeout(() => {
-        const heroElements = document.querySelectorAll('.hero .fade-up');
+        const heroElements = document.querySelectorAll('.hero .fade-up, .hero .blur-fade-in');
         heroElements.forEach((el, index) => {
           setTimeout(() => {
             el.classList.add('visible');
@@ -742,6 +747,70 @@ at a fraction of traditional agency costs.`;
     return tokens;
   }
 
+  // Pre-calculate full content height to prevent layout shifts
+  function calculateFullHeight() {
+    const codeBlock = codeContent.parentElement;
+    if (!codeBlock) return;
+
+    // Get computed styles to match actual rendering
+    const computedStyle = window.getComputedStyle(codeContent);
+    const fontSize = computedStyle.fontSize || '13px';
+    const lineHeight = computedStyle.lineHeight || '1.8';
+    const fontFamily = computedStyle.fontFamily || "'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace";
+    
+    // Get padding from code block
+    const codeBlockStyle = window.getComputedStyle(codeBlock);
+    const paddingTop = parseInt(codeBlockStyle.paddingTop, 10) || 24;
+    const paddingBottom = parseInt(codeBlockStyle.paddingBottom, 10) || 24;
+    const totalPadding = paddingTop + paddingBottom;
+    
+    // Get available width (code block width minus padding)
+    const codeBlockWidth = codeBlock.offsetWidth;
+    const availableWidth = codeBlockWidth - (parseInt(codeBlockStyle.paddingLeft, 10) || 24) - (parseInt(codeBlockStyle.paddingRight, 10) || 24);
+
+    // Create a temporary hidden element with all content
+    const tempContent = document.createElement('pre');
+    tempContent.className = 'code-content';
+    tempContent.style.cssText = `
+      position: absolute;
+      visibility: hidden;
+      top: 0;
+      left: 0;
+      width: ${availableWidth}px;
+      margin: 0;
+      padding: 0;
+      font-family: ${fontFamily};
+      font-size: ${fontSize};
+      line-height: ${lineHeight};
+      white-space: pre;
+    `;
+    
+    // Render all tokens to get accurate height
+    const tokens = parseCode(plainCode);
+    tokens.forEach(token => {
+      if (token.type === 'newline') {
+        const lineBreak = document.createElement('br');
+        tempContent.appendChild(lineBreak);
+      } else {
+        const span = document.createElement('span');
+        span.textContent = token.value;
+        span.className = `code-${token.type}`;
+        tempContent.appendChild(span);
+      }
+    });
+
+    // Append to code block temporarily to measure (use body to avoid layout issues)
+    document.body.appendChild(tempContent);
+    const fullHeight = tempContent.offsetHeight;
+    document.body.removeChild(tempContent);
+
+    // Set the height immediately to prevent any layout shifts
+    codeBlock.style.height = `${fullHeight + totalPadding}px`;
+    
+    // Also set min-height to ensure it doesn't shrink
+    codeBlock.style.minHeight = `${fullHeight + totalPadding}px`;
+  }
+
   // Function to start the typing animation
   function startTypingAnimation() {
     // Clear any existing timeouts
@@ -749,6 +818,9 @@ at a fraction of traditional agency costs.`;
       clearTimeout(typingTimeout);
       typingTimeout = null;
     }
+
+    // Pre-calculate and set full height before starting animation
+    calculateFullHeight();
 
     // Reset content
     codeContent.innerHTML = '';
@@ -798,9 +870,6 @@ at a fraction of traditional agency costs.`;
           startTypingAnimation();
         }, 5000);
       }
-      
-      // Scroll to bottom
-      codeContent.parentElement.scrollTop = codeContent.parentElement.scrollHeight;
     }
 
     // Start typing after delay
@@ -809,8 +878,38 @@ at a fraction of traditional agency costs.`;
     }, delay);
   }
 
-  // Start the initial animation
-  startTypingAnimation();
+  // Calculate height on initial load and when section becomes visible
+  const codeDemo = document.querySelector('.tech-stack__code-demo');
+  if (codeDemo) {
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Calculate height when section becomes visible
+          calculateFullHeight();
+          // Start animation after a brief delay to ensure height is set
+          setTimeout(() => {
+            startTypingAnimation();
+          }, 100);
+          sectionObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    sectionObserver.observe(codeDemo);
+  } else {
+    // Fallback: start immediately if observer not available
+    calculateFullHeight();
+    startTypingAnimation();
+  }
+
+  // Recalculate height on window resize (for responsive font size changes)
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      calculateFullHeight();
+    }, 150);
+  });
 
   // Copy button functionality
   if (copyButton) {
