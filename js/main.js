@@ -677,186 +677,68 @@ function initCodeTyping() {
 
   // Store the original HTML content
   const originalHTML = codeContent.innerHTML;
-  const plainCode = `// Built with Lovable, Cursor & Claude Code
-// Automated with n8n
-// Trusted by 10+ Toronto businesses
+  const plainCode = `# Built by Someone Who Understands Your Business
 
-export async function createBooking(data) {
-  // Save booking
-  const booking = await saveToDatabase(data);
-  
-  // Trigger n8n workflow
-  await n8n.webhook('new-booking', booking);
-  
-  return booking;
-}
+After working in Toronto's service industry and
+software development, I saw the same problems
+everywhere: owners spending hours on manual tasks,
+data scattered across systems, and costly mistakes
+from poor operational visibility.
 
-export async function syncSchedule() {
-  const bookings = await getBookings();
-  await n8n.webhook('sync-schedule', bookings);
-  
-  return bookings;
-}`;
+I created Etincelle to solve these problems with
+AI-powered automation tailored specifically for
+service businesses.
+
+## How We Build Fast, Affordable Solutions
+
+We use cutting-edge AI development tools to deliver
+custom software in weeks, not months:
+
+- Claude AI & Cursor - AI-powered development
+- Lovable - Quick deployment of web apps
+- Supabase - Secure, scalable infrastructure
+- n8n - Workflow automation for your tools
+
+This modern stack lets us build custom solutions
+at a fraction of traditional agency costs.`;
 
   let typingTimeout = null;
-  let animationInterval = null;
 
-  // Parse code into tokens with syntax highlighting
+  // Parse markdown into tokens with syntax highlighting
   function parseCode(code) {
     const lines = code.split('\n');
     const tokens = [];
-    
+
     lines.forEach((line, lineIndex) => {
       if (line.trim() === '') {
         tokens.push({ type: 'newline', value: '\n' });
         return;
       }
-      
-      // Tokenize the line
-      const lineTokens = [];
-      let i = 0;
-      let currentToken = '';
-      let inString = false;
-      let stringChar = '';
-      let inTag = false;
-      
-      while (i < line.length) {
-        const char = line[i];
-        const nextChar = line[i + 1];
-        
-        // Handle strings
-        if ((char === '"' || char === "'") && !inTag) {
-          if (!inString) {
-            if (currentToken) {
-              lineTokens.push({ type: 'text', value: currentToken });
-              currentToken = '';
-            }
-            inString = true;
-            stringChar = char;
-            lineTokens.push({ type: 'string', value: char });
-          } else if (char === stringChar && line[i - 1] !== '\\') {
-            lineTokens.push({ type: 'string', value: char });
-            inString = false;
-            stringChar = '';
-          } else {
-            lineTokens.push({ type: 'string', value: char });
-          }
-          i++;
-          continue;
-        }
-        
-        if (inString) {
-          lineTokens.push({ type: 'string', value: char });
-          i++;
-          continue;
-        }
-        
-        // Handle JSX tags
-        if (char === '<' && nextChar && /[a-zA-Z]/.test(nextChar)) {
-          if (currentToken) {
-            lineTokens.push({ type: 'text', value: currentToken });
-            currentToken = '';
-          }
-          inTag = true;
-          lineTokens.push({ type: 'tag', value: char });
-          i++;
-          continue;
-        }
-        
-        if (inTag) {
-          if (char === '>' || (char === '/' && nextChar === '>')) {
-            lineTokens.push({ type: 'tag', value: char });
-            inTag = false;
-          } else {
-            lineTokens.push({ type: 'tag', value: char });
-          }
-          i++;
-          continue;
-        }
-        
-        // Handle keywords
-        const keywords = ['import', 'export', 'async', 'await', 'function', 'type', 'return', 'as', 'from', 'use', 'const', 'let', 'var'];
-        const keywordMatch = line.substring(i).match(/^(\w+)/);
-        if (keywordMatch && keywords.includes(keywordMatch[1])) {
-          if (currentToken) {
-            lineTokens.push({ type: 'text', value: currentToken });
-            currentToken = '';
-          }
-          lineTokens.push({ type: 'keyword', value: keywordMatch[1] });
-          i += keywordMatch[1].length;
-          continue;
-        }
-        
-        // Handle types (after 'type' keyword or in type annotations)
-        if (line.substring(Math.max(0, i - 10), i).match(/type\s+\w+\s*=|:\s*$/)) {
-          const typeMatch = line.substring(i).match(/^([A-Z]\w*)/);
-          if (typeMatch) {
-            if (currentToken) {
-              lineTokens.push({ type: 'text', value: currentToken });
-              currentToken = '';
-            }
-            lineTokens.push({ type: 'type', value: typeMatch[1] });
-            i += typeMatch[1].length;
-            continue;
-          }
-        }
-        
-        // Handle function names (after 'function' or 'async function' keyword)
-        if (line.substring(Math.max(0, i - 20), i).match(/(async\s+)?function\s+$/)) {
-          const funcMatch = line.substring(i).match(/^(\w+)/);
-          if (funcMatch) {
-            if (currentToken) {
-              lineTokens.push({ type: 'text', value: currentToken });
-              currentToken = '';
-            }
-            lineTokens.push({ type: 'function', value: funcMatch[1] });
-            i += funcMatch[1].length;
-            continue;
-          }
-        }
-        
-        // Handle async function names
-        if (line.substring(Math.max(0, i - 10), i).match(/async\s+function\s+\w+/)) {
-          const asyncFuncMatch = line.substring(i).match(/^(\w+)/);
-          if (asyncFuncMatch && !keywords.includes(asyncFuncMatch[1])) {
-            if (currentToken) {
-              lineTokens.push({ type: 'text', value: currentToken });
-              currentToken = '';
-            }
-            lineTokens.push({ type: 'function', value: asyncFuncMatch[1] });
-            i += asyncFuncMatch[1].length;
-            continue;
-          }
-        }
-        
-        // Handle parameters (in function parentheses)
-        if (line.substring(Math.max(0, i - 20), i).match(/\([^)]*$/)) {
-          const paramMatch = line.substring(i).match(/^(\w+)/);
-          if (paramMatch && !keywords.includes(paramMatch[1])) {
-            if (currentToken) {
-              lineTokens.push({ type: 'text', value: currentToken });
-              currentToken = '';
-            }
-            lineTokens.push({ type: 'param', value: paramMatch[1] });
-            i += paramMatch[1].length;
-            continue;
-          }
-        }
-        
-        currentToken += char;
-        i++;
+
+      // Handle markdown headers
+      if (line.startsWith('## ')) {
+        tokens.push({ type: 'keyword', value: '## ' });
+        tokens.push({ type: 'function', value: line.substring(3) });
       }
-      
-      if (currentToken) {
-        lineTokens.push({ type: 'text', value: currentToken });
+      else if (line.startsWith('# ')) {
+        tokens.push({ type: 'keyword', value: '# ' });
+        tokens.push({ type: 'function', value: line.substring(2) });
       }
-      
-      tokens.push(...lineTokens);
+      // Handle list items
+      else if (line.startsWith('- ')) {
+        tokens.push({ type: 'keyword', value: '- ' });
+        tokens.push({ type: 'text', value: line.substring(2) });
+      }
+      // Regular text
+      else {
+        tokens.push({ type: 'text', value: line });
+      }
+
       if (lineIndex < lines.length - 1) {
         tokens.push({ type: 'newline', value: '\n' });
       }
     });
-    
+
     return tokens;
   }
 
@@ -875,8 +757,8 @@ export async function syncSchedule() {
 
     const tokens = parseCode(plainCode);
     let currentTokenIndex = 0;
-    const duration = 4000; // 4 seconds total
-    const delay = 800; // Start delay
+    const duration = 1500; // 1.5 seconds total (faster typing)
+    const delay = 500; // Start delay
     const charDelay = duration / plainCode.length;
 
     function typeNext() {
@@ -911,6 +793,10 @@ export async function syncSchedule() {
         // Typing complete
         codeContent.classList.remove('writing');
         codeCursor.classList.remove('hidden');
+        // Restart animation 5 seconds after typing finishes
+        typingTimeout = setTimeout(() => {
+          startTypingAnimation();
+        }, 5000);
       }
       
       // Scroll to bottom
@@ -925,11 +811,6 @@ export async function syncSchedule() {
 
   // Start the initial animation
   startTypingAnimation();
-
-  // Restart animation every 10 seconds
-  animationInterval = setInterval(() => {
-    startTypingAnimation();
-  }, 10000);
 
   // Copy button functionality
   if (copyButton) {
